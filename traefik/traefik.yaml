@@ -24,8 +24,6 @@ entryPoints:
 providers:
   docker:
     exposedByDefault: false
-      #    endpoint: "tcp://dockerproxy:2375"
-      #network: "traefik"
 
 certificatesResolvers:
   letencrypt:
