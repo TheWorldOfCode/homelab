@@ -9,21 +9,37 @@ services:
       - "67:67/udp"
     restart: always
     volumes:
-      - pihole-dnsmasq:/etc/dnsmasq.d
-      - pihole-pihole:/etc/pihole
+      - dnsmasq:/etc/dnsmasq.d
+      - pihole:/etc/pihole
     networks:
       - frontend
     labels:
+      - 'pihole.url=${PIHOLE_DOMAIN:-dns.home}'
       - 'traefik.enable=true'
-      - 'traefik.http.routers.pihole.rule=Host(`dns.local`)'
+      - 'traefik.http.routers.pihole.rule=Host(`${PIHOLE_DOMAIN:-dns.home}`)'
       - 'traefik.http.routers.pihole.entrypoints=web'
       - "traefik.http.services.pihole.loadbalancer.server.port=80"
 
+  autolocaldns:
+    build:
+      context: auto_local_dns
+      dockerfile: Dockerfile
+    image: pihole_autolocaldns
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - pihole:/etc/pihole
+    environment:
+      - "SCHEDULE_SECONDS=${PIHOLE_AUTO_LOCAL_DNS_SCHEDULE:-5}"
+      - "LABEL_URL=${PIHOLE_AUTO_LOCAL_DNS_LABEL_DOMAIN:-pihole.url}"
+      - "DOCKER_NETWORK=frontend"
+      - "DOMAIN_EXTENSION=${PIHOLE_AUTO_LOCAL_DNS_DOMAIN_EXTENSION:-home}"
+      - "PIHOLE_DNS_LIST_PATH=/etc/pihole/custom.list"
+
 volumes:
-  pihole-dnsmasq:
-    external: true
-  pihole-pihole:
-    external: true
+  dnsmasq:
+    external: false
+  pihole:
+    external: false
 
 networks:
   frontend:
