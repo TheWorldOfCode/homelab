@@ -9,10 +9,9 @@ security risk.
 
 ## Configuration
 The behaviour of the script is determined by a number of environment variables. 
-    - `SCHEDULE_SECONDS`: How often the script should check the labels in
-      seconds, default: 5.
-    - `LABEL_URL`: The name of the docker label containing the domain names
-    - `DOCKER_NETWORK`: Which network the containers should be on
-    - `PIHOLE_DNS_LIST_PATH` The path to pi-hole file containing the local DNS
-      records, default: /etc/pihole/custom.list
-    - `DOMAIN_EXTENSION`: The extension of the domains which is concided local.
+
+- `SCHEDULE_SECONDS`: How often the script should check the labels in seconds, default: 5.
+- `LABEL_URL`: The name of the docker label containing the domain names
+- `DOCKER_NETWORK`: Which network the containers should be on
+- `PIHOLE_DNS_LIST_PATH` The path to pi-hole file containing the local DNS records, default: /etc/pihole/custom.list
+- `DOMAIN_EXTENSION`: The extension of the domains which is concided local.
