@@ -26,10 +26,11 @@ providers:
     exposedByDefault: false
 
 certificatesResolvers:
-  letencrypt:
+  letsencrypt:
     acme:
       email: "dannj75@gmail.com"
       storage: /etc/traefik/certs/acme.json
-      caServer: "https://acme-v02.api.letsencrypt.org/directory"
+      # caServer: "https://acme-v02.api.letsencrypt.org/directory"
       httpChallenge:
         entryPoint: web
+      tlsChallenge: {}

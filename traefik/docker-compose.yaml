@@ -12,10 +12,11 @@ services:
     restart: always
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - ${TRAEFIK_ETC-.}:/etc/traefik
+      - ${TRAEFIK_ETC:-.}:/etc/traefik
     labels:
+      - 'pihole.url=traefik.home'
       - 'traefik.enable=true'
-      - 'traefik.http.routers.traefik.rule=Host(`traefik.local`)'
+      - 'traefik.http.routers.traefik.rule=Host(`traefik.home`)'
       - 'traefik.http.routers.traefik.entrypoints=web'
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
 
