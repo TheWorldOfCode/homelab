@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ $EUID -eq 0 ]; then
+    
+    if [ -f /etc/resolv.conf.backup ]; then
+        mv /etc/resolv.conf.backup /etc/resolv.conf
+    else
+        cp /etc/resolv.conf /etc/resolv.conf.backup
+        echo "nameserver 127.0.0.1" > /etc/resolv.conf
+    fi
+else
+    echo "Please run as root"
+fi
