@@ -37,6 +37,8 @@ services:
       - "DOMAIN_EXTENSION=${PIHOLE_AUTO_LOCAL_DNS_DOMAIN_EXTENSION:-home}"
       - "PIHOLE_DNS_LIST_PATH=/etc/pihole/custom.list"
       - "OVERWRITE_DOMAIN_IP=${PIHOLE_OVERWRITE_DOMAIN_IP:-127.0.0.1}"
+    depends:
+      pihole
 
 volumes:
   dnsmasq:
