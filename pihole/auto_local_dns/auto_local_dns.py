@@ -30,13 +30,18 @@ class Domain():
         """ Return information according to pihole file format """
         return f"{self._ip} {self._name}"
 
+    def __str__(self) -> str:
+        return f"{self._ip} {self._name}"
+
+    def __repr__(self) -> str:
+        return repr((self._ip, self._name))
+
     def __eq__(self, b) -> bool:
         """ Compare two domains """
-
         if self._name != b._name:
             return False
 
-        if self._ip != self._ip:
+        if self._ip != b._ip:
             return False
 
         return True
@@ -56,6 +61,7 @@ def main():
     pihole_list = os.getenv("PIHOLE_DNS_LIST_PATH", "/etc/pihole/custom.list")
     domain_ext = os.getenv("DOMAIN_EXTENSION", "home")
     overwrite_domain = os.getenv("OVERWRITE_DOMAIN_IP", "")
+    pihole_container = os.getenv("PIHOLE_CONTAINER_NAME", "pihole")
 
     print(f"Schedule time: {time}")    
     print(f"Label url: {label}")    
@@ -63,11 +69,13 @@ def main():
     print(f"Pihole list: {pihole_list}")    
     print(f"Domain extension: {domain_ext}")    
     print(f"Overwrite domain ip: {overwrite_domain}")    
+    print(f"Pihole container name: {pihole_container}")
 
     signal.signal(signal.SIGINT, stop)
 
     while not STOP:
-        task(label, network, pihole_list, domain_ext, overwrite_domain)
+        task(label, network, pihole_list, domain_ext, overwrite_domain,
+             pihole_container)
         sleep(time)
 
 def compare_domains(list_a: List[Domain], list_b: List[Domain]) -> bool:
@@ -79,18 +87,16 @@ def compare_domains(list_a: List[Domain], list_b: List[Domain]) -> bool:
         @return True if the lists contains the same domains
     """
 
-    for a_domain in list_a:
-        for b_domain in list_b:
+                                                       
 
-            if a_domain == b_domain:
-                pass
-            else:
-                return False
+    if len(list_a) != len(list_b):
+        return False
 
-    return True
+    return sorted(reversed(list_a), key=lambda x: x._name) == sorted(list_b, key=lambda x: x._name)
 
 
-def task(label, network, pihole_list, domain_ext, overwrite_domain):
+def task(label, network, pihole_list, domain_ext, overwrite_domain,
+         pihole_container_name):
     client = docker.from_env()
 
     containers = []
@@ -107,6 +113,7 @@ def task(label, network, pihole_list, domain_ext, overwrite_domain):
         except:
             pass
 
+    print("Containers:",containers)
     if len(containers) != 0:
         
         pihole = []
@@ -115,15 +122,17 @@ def task(label, network, pihole_list, domain_ext, overwrite_domain):
                 ip, domain = line.replace("\n", "").split(" ")
                 pihole.append(Domain(domain, ip))
 
-        
+        print("Pihole list", pihole) 
         if not compare_domains(pihole, containers):
             with open(pihole_list, "w") as f:
                 for d in containers:
                     f.write(f"{d.to_file()}\n")
-            print("UPDATE DNS SERVER")
+            print("Update dns server")
+
+            pihole_container = client.containers.get(pihole_container_name)
+            pihole_container.exec_run("pihole restartdns")
 
 
 
 if __name__ == "__main__":
-    print("ENTER")
     main()
