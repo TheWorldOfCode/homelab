@@ -1,0 +1,32 @@
+version: "2.1"
+services:
+  dokuwiki:
+    image: lscr.io/linuxserver/dokuwiki:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${DOKUWIKI_TIMEZONE:-Europe/Copenhagen}
+    volumes:
+      - wiki_data:/config
+    restart: unless-stopped
+    networks:
+      - frontend
+    labels:
+      - 'pihole.url=${DOKUWIKI_DOMAIN:-wiki.home}'
+      - 'traefik.enable=${DOKUWIKI_ENABLE:-true}'
+      - "traefik.http.routers.${DOKUWIKI_SERVICE_NAME:-dokuwiki}.entrypoints=web"
+      - "traefik.http.routers.${DOKUWIKI_SERVICE_NAME:-dokuwiki}.rule=Host(`${DOKUWIKI_DOMAIN:-wiki.home}`)"
+      - "traefik.http.routers.${DOKUWIKI_SERVICE_NAME:-dokuwiki}.middlewares=websecure-redirect"
+      - 'traefik.http.routers.${DOKUWIKI_SERVICE_NAME:-dokuwiki}-secure.rule=Host(`${DOKUWIKI_DOMAIN:-wiki.home}`)'
+      - 'traefik.http.routers.${DOKUWIKI_SERVICE_NAME:-dokuwiki}-secure.entrypoints=websecure'
+      - 'traefik.http.routers.${DOKUWIKI_SERVICE_NAME:-dokuwiki}-secure.tls=${DOKUWIKI_ENABLE_TLS:-true}'
+      - 'traefik.http.routers.${DOKUWIKI_SERVICE_NAME:-dokuwiki}-secure.tls.certresolver=${DOKUWIKI_CERTRESOLVER:-letsencrypt}'
+      - 'traefik.http.services.${DOKUWIKI_SERVICE_NAME:-dokuwiki}-secure.loadbalancer.server.port=80'
+
+volumes:
+  wiki_data:
+    external: false
+
+networks:
+  frontend:
+    external: true
