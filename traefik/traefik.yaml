@@ -1,6 +1,6 @@
 log:
-  level: DEBUG  # DEBUG, INFO, WARNING, ERROR, CRITICAL
-  format: common  # common, json, logfmt
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: logfmt  # common, json, logfmt
   filePath: /var/log/traefik/traefik.log
 # 
 # # (Optional) Accesslog
@@ -20,6 +20,9 @@ entryPoints:
     address: ":80"
   websecure:
     address: ":443"
+
+serversTransport:
+  insecureSkipVerify: true
                       
 providers:
   docker:
@@ -29,8 +32,15 @@ certificatesResolvers:
   letsencrypt:
     acme:
       email: "dannj75@gmail.com"
-      storage: /etc/traefik/certs/acme.json
+      storage: /etc/traefik/certs/letsencrupt.json
       # caServer: "https://acme-v02.api.letsencrypt.org/directory"
       httpChallenge:
         entryPoint: web
       tlsChallenge: {}
+  simply:
+    acme:
+      email: "dannj75@gmail.com"
+      storage: /etc/traefik/certs/simply.json
+      dnsChallenge:
+        provider: simply
+        delayBeforeCheck: 0

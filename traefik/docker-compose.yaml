@@ -8,17 +8,22 @@ services:
     ports:
       - 80:80
       - 443:443
-      - 8079:8080
     restart: always
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - ${TRAEFIK_ETC:-.}:/etc/traefik
+    environment:
+      - "SIMPLY_ACCOUNT_NAME=${TRAEFIK_SIMPLY_ACCOUNT_NAME}"
+      - "SIMPLY_API_KEY=${TRAEFIK_SIMPLY_API_KEY}"
     labels:
-      - 'pihole.url=traefik.home'
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.traefik.rule=Host(`traefik.home`)'
-      - 'traefik.http.routers.traefik.entrypoints=web'
-      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      - 'pihole.url=${TRAEFIK_DOMAIN:-traefik.home}'
+      - 'traefik.http.middlewares.websecure-redirect.redirectscheme.scheme=websecure'
+      - 'traefik.enable=${TRAEFIK_ENABLE:-true}'
+      - 'traefik.http.routers.traefik.rule=Host(`${TRAEFIK_DOMAIN:-traefik.home}`)'
+      - 'traefik.http.routers.traefik.entrypoints=${TRAEFIK_ENTRYPOINT:-web}'
+      - 'traefik.http.routers.traefik.tls=${TRAEFIK_ENABLE_TLS:-false}'
+      - 'traefik.http.routers.traefik.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}'
+      - 'traefik.http.services.traefik.loadbalancer.server.port=8080'
 
 
 networks:
