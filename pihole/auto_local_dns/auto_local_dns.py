@@ -113,8 +113,8 @@ def task(label, network, pihole_list, domain_ext, overwrite_domain,
         except:
             pass
 
-    print("Containers:",containers)
     if len(containers) != 0:
+        print("Containers:",containers)
         
         pihole = []
         with open(pihole_list, "r") as f:

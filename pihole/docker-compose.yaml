@@ -16,6 +16,8 @@ services:
     labels:
       - 'pihole.url=${PIHOLE_DOMAIN:-dns.home}'
       - 'traefik.enable=true'
+      - 'traefik.http.middlewares.pihole-admin.addprefix.prefix=/admin'
+      - 'traefik.http.routers.pihole.middlewares=pihole-admin'
       - 'traefik.http.routers.pihole.rule=Host(`${PIHOLE_DOMAIN:-dns.home}`)'
       - 'traefik.http.routers.pihole.entrypoints=${PIHOLE_ENTRYPOINT:-web}'
       - "traefik.http.services.pihole.loadbalancer.server.port=80"
@@ -23,10 +25,13 @@ services:
       - 'traefik.http.routers.pihole.tls.certresolver=${PIHOLE_CERTRESOLVER:-letsencrypt}'
 
   autolocaldns:
+    depends_on:
+      - pihole
     build:
       context: auto_local_dns
       dockerfile: Dockerfile
     image: pihole_autolocaldns
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - pihole:/etc/pihole
@@ -37,8 +42,6 @@ services:
       - "DOMAIN_EXTENSION=${PIHOLE_AUTO_LOCAL_DNS_DOMAIN_EXTENSION:-home}"
       - "PIHOLE_DNS_LIST_PATH=/etc/pihole/custom.list"
       - "OVERWRITE_DOMAIN_IP=${PIHOLE_OVERWRITE_DOMAIN_IP:-127.0.0.1}"
-    depends:
-      pihole
 
 volumes:
   dnsmasq:
